@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="UTF-8">
+  <title>Earthquakes</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxM25eATpFqZ9RHGLrau7_9g6sTh6-FV8&callback=initMap&libraries=&v=weekly"
+    defer
+  ></script>
+  <script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href="./css/style.css" rel="stylesheet">
+  <script>
+    let map;
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 2,
+        center: { lat: -33.865427, lng: 151.196123 },
+        mapTypeId: "terrain",
+      });
+      const script = document.createElement("script");
+      script.src =
+        "https://developers.google.com/maps/documentation/javascript/examples/json/earthquake_GeoJSONP.js";
+      document.getElementsByTagName("head")[0].appendChild(script);
+      map.data.setStyle((feature) => {
+        const magnitude = feature.getProperty("mag");
+        return {
+          icon: getCircle(magnitude),
+        };
+      });
+    }
+
+    function getCircle(magnitude) {
+      return {
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: "red",
+        fillOpacity: 0.2,
+        scale: Math.pow(2, magnitude) / 2,
+        strokeColor: "white",
+        strokeWeight: 0.5,
+      };
+    }
+
+    function eqfeed_callback(results) {
+      map.data.addGeoJson(results);
+    }
+  </script>
+</head>
+<body>
+	<div class="container">
+		<header id="header">
+			<nav>
+				<div class="nav-fostrap">
+				  <ul>
+					<li><a href="index.html">Overview</a></li>
+					<li><a href="author.html">Author</a></li>
+					<li><a href="description.html">Description</a></li>
+					<li><a href="javascript:void(0)" >Visualisations<span class="arrow-down"></span></a>
+						<ul class="dropdown">
+						  <li><a href="earthquakes.html">Earthquakes</a></li>
+						  <li><a href="covid.html">COVID-19</a></li>
+						</ul>
+					</li>
+				  </ul>
+				</div>
+				<div class="nav-bg-fostrap">
+				  <div class="navbar-fostrap"> <span></span> <span></span> <span></span> </div>
+				  <a href="#" class="title-mobile">Earthquakes</a>
+				</div>
+			</nav>
+    </header>
+    <div class="content">
+      <div id="map"></div>
+    </div>
+	</div>
+  <script src="./js/navbar.js"></script>
+</body>
+
+</html>

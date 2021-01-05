@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="UTF-8">
+	<title>COVID-19</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-style@0.5.0"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link href="./css/style.css" rel="stylesheet">
+</head>
+<body>
+	<div class="container">
+		<header id="header">
+			<nav>
+				<div class="nav-fostrap">
+				  <ul>
+					<li><a href="index.html">Overview</a></li>
+					<li><a href="author.html">Author</a></li>
+					<li><a href="description.html">Description</a></li>
+					<li><a href="javascript:void(0)" >Visualisations<span class="arrow-down"></span></a>
+						<ul class="dropdown">
+						  <li><a href="earthquakes.html">Earthquakes</a></li>
+						  <li><a href="covid.html">COVID-19</a></li>
+						</ul>
+					</li>
+				  </ul>
+				</div>
+				<div class="nav-bg-fostrap">
+				  <div class="navbar-fostrap"> <span></span> <span></span> <span></span> </div>
+				  <a href="#" class="title-mobile">COVID-19</a>
+				</div>
+			</nav>
+		</header>
+		<div id="content" class="content">
+			<div>
+				<canvas id="myChart" style="height: 600px;"></canvas>
+			</div>
+		</div>
+	</div>
+	<script src="./js/navbar.js"></script>
+	<script src="./js/covid.js"></script>
+	<script>
+		let api_key = '908ac17634msh4c2efdab23325afp155db5jsna3c10091faa9';
+		let host = 'covid-19-statistics.p.rapidapi.com';
+		let endpoint = 'https://covid-19-statistics.p.rapidapi.com/reports/total';
+		let death = [0];
+		let recovered = [0];
+		for (let i = 2; i <= 11; i++) {
+			let d_sum = 0, r_sum = 0;
+			for (let j = 1; j <= 29; j += 4) {
+				$.ajax({
+					type: "GET",
+					beforeSend: function(request) {
+						request.setRequestHeader("x-rapidapi-key", api_key);
+						request.setRequestHeader("x-rapidapi-host", host);
+						request.setRequestHeader("useQueryString", true);
+					},
+					url: endpoint + `?date=${dateStr(i, j)}`,
+					processData: false,
+					success: function(res) {
+						d_sum += res.data.deaths;
+						r_sum += res.data.recovered;
+						if (j == 29) {
+							d_sum /= 8;
+							r_sum /= 8;
+							death.push(d_sum);
+							recovered.push(r_sum);
+							window.myChart.update();
+						}
+					}
+				});
+			}
+			
+		}
+		
+
+		// Chart
+		var chartColors = {
+			red: 'rgb(255, 99, 132)',
+			blue: 'rgb(54, 162, 235)'
+		};
+		var effectColors = {
+			highlight: 'rgba(255, 255, 255, 0.75)',
+			shadow: 'rgba(0, 0, 0, 0.5)',
+			glow: 'rgb(255, 255, 0)'	
+		};
+
+		var color = Chart.helpers.color;
+		var config = {
+			type: 'bar',
+			data: {
+				labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+				datasets: [{
+					label: 'Death',
+					backgroundColor: chartColors.red,
+					borderWidth: 0,
+					data: death,
+					shadowOffsetX: 5,
+					shadowOffsetY: 5,
+					shadowBlur: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+					shadowColor: effectColors.shadow
+				}, {
+					label: 'Recovered',
+					backgroundColor: color(chartColors.blue).alpha(0.5).rgbString(),
+					borderWidth: 0,
+					data: recovered,
+					shadowOffsetX: 5,
+					shadowOffsetY: 5,
+					shadowBlur: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+					shadowColor: effectColors.shadow
+				}]
+			},
+			options: {
+				title: {
+					display: true,
+					text: '2020 COVID-19 Statistics'
+				},
+				scales: {
+					xAxes: [{
+						scaleLabel: {
+							display: true,
+							labelString: '2020'
+						}
+					}],
+					yAxes: [{
+						scaleLabel: {
+							display: true,
+							labelString: 'Recovered'
+						}
+					}]
+				},
+				tooltips: {
+					shadowOffsetX: 3,
+					shadowOffsetY: 3,
+					shadowBlur: 10,
+					shadowColor: effectColors.shadow,
+				}
+			}
+		};
+
+		window.onload = function() {
+			var ctx = document.getElementById('myChart').getContext('2d');
+			window.myChart = new Chart(ctx, config);
+		};
+	</script>
+</body>
+
+</html>
